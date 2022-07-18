@@ -1,0 +1,15 @@
+version: '3'
+services:
+  golang:
+    container_name: practice_gocsv
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      TZ: "Asia/Tokyo"
+    working_dir: /go/usr
+    volumes:
+      - ./:/go/usr
+    command: >
+      sh
+    tty: true
