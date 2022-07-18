@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/gocarina/gocsv"
 )
@@ -49,19 +51,28 @@ func TransformCSV() error {
 		return err
 	}
 
-	todayStr := "2006/01/05"
+	startDate := time.Date(2021, time.June, 1, 0, 0, 0, 0, time.Local)
+	endDate := time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local)
+
+	dateStrs, err := CreateDateStrs(startDate, endDate)
+	if err != nil {
+		fmt.Printf("create date string array failed (err=%+v)\n", err)
+		return err
+	}
 
 	outputs := []*MemberOutput{}
 	for _, input := range inputs {
-		outputs = append(outputs, &MemberOutput{
-			ID:          input.ID,
-			FamilyName:  input.FamilyName,
-			FirstName:   input.FirstName,
-			StampedDate: todayStr,
-			StampDate:   todayStr,
-			StampTime:   "09:00",
-			StampType:   "出勤",
-		})
+		for _, ds := range dateStrs {
+			outputs = append(outputs, &MemberOutput{
+				ID:          input.ID,
+				FamilyName:  input.FamilyName,
+				FirstName:   input.FirstName,
+				StampedDate: *ds,
+				StampDate:   *ds,
+				StampTime:   "09:00",
+				StampType:   "出勤",
+			})
+		}
 	}
 
 	outputFile, err := os.Create("output.csv")
@@ -77,4 +88,27 @@ func TransformCSV() error {
 	}
 
 	return nil
+}
+
+// CreateDateStrs 開始日から終了日までの日付文字列の配列を作成する
+func CreateDateStrs(startDate time.Time, endDate time.Time) ([]*string, error) {
+	diffUnix := endDate.Unix() - startDate.Unix()
+	diffDateStr := fmt.Sprintf("%d", (diffUnix / (60 * 60 * 24)))
+	diffDate, err := strconv.Atoi(diffDateStr)
+	if err != nil {
+		fmt.Printf("convert string to int failed (err=%+v)\n", err)
+		return nil, err
+	}
+
+	dateStrs := []*string{}
+	for i := 0; i <= diffDate; i++ {
+		date := startDate.Add(time.Hour * 24 * time.Duration(i))
+		year := date.Year()
+		month := int(date.Month())
+		day := date.Day()
+		dateStr := fmt.Sprintf("%d", year) + "/" + fmt.Sprintf("%d", month) + "/" + fmt.Sprintf("%d", day)
+		dateStrs = append(dateStrs, &dateStr)
+	}
+
+	return dateStrs, nil
 }
