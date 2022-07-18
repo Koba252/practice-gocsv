@@ -1,1 +1,7 @@
 pkg
+
+# 入力データ
+input.csv
+
+# 出力データ
+output.csv
