@@ -103,6 +103,9 @@ func CreateDateStrs(startDate time.Time, endDate time.Time) ([]*string, error) {
 	dateStrs := []*string{}
 	for i := 0; i <= diffDate; i++ {
 		date := startDate.Add(time.Hour * 24 * time.Duration(i))
+		if date.Weekday() == time.Sunday || date.Weekday() == time.Saturday {
+			continue
+		}
 		year := date.Year()
 		month := int(date.Month())
 		day := date.Day()
