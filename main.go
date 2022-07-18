@@ -70,7 +70,8 @@ func TransformCSV() error {
 		return err
 	}
 
-	err = gocsv.MarshalFile(outputs, outputFile); if err != nil {
+	err = gocsv.MarshalFile(outputs, outputFile)
+	if err != nil {
 		fmt.Printf("marshal output csv file failed (err=%+v)\n", err)
 		return err
 	}
